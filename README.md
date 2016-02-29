@@ -11,7 +11,7 @@ The wallet data is stored in your browser's local storage and is encrypted with 
 
 ## Documentation + Demo
 
-[https://sponnet.github.io/web3-wallet/components/web3-wallet/]()
+[https://sponnet.github.io/web3-wallet/components/web3-wallet/](https://sponnet.github.io/web3-wallet/components/web3-wallet/)
 
 
 ## Credits
