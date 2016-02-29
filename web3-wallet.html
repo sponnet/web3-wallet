@@ -10,29 +10,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-localstorage/iron-localstorage.html">
 
-
 <script src="../web3/dist/web3.min.js"></script>
 <script src="../hooked-web3-provider/build/hooked-web3-provider.min.js"></script>
 <script src="../eth-lightwallet/dist/lightwallet.min.js"></script>
 
 <!--
-An element providing a solution to no problem in particular.
+A polymer wrapper to web3js and lightwallet libraries to build blockchain apps in polymer.
 
 Example:
 
-    <web3-wallet></web3-wallet>
-
+    <web3-wallet password="{{password}}" host="http://<yourRPCnode>:8545" account="{{account}}" web3="{{web3}}" keystore="{{keystore}}"></web3-wallet>
 @demo
 -->
 <dom-module id="web3-wallet">
 
-  <template>
- <iron-localstorage 
+<template>
+  <iron-localstorage 
       id="localstorage" 
-      name="{{walletName}}" value="{{walletData}}" 
-      on-iron-localstorage-load-empty="initWallet" on-iron-localstorage-load="loadWallet"></iron-localstorage>
-
-  </template>
+      name="{{walletname}}"
+      value="{{walletData}}" 
+      on-iron-localstorage-load-empty="initWallet"
+      on-iron-localstorage-load="_loadWallet"></iron-localstorage>
+</template>
 
 </dom-module>
 
@@ -44,11 +43,39 @@ Example:
 
     properties: {
 
-      walletName: {
+      /** key in localstorage under which to store your serialized wallet. */
+      walletname: {
         type: String,
         value: 'web3-wallet'
+      },
+      /** password to encrypt your wallet with. */
+      password: {
+        type: String
+      },
+      /** number of addresses to create when creating a new wallet. */
+      generateaddresses: {
+        type: Number,
+        value: 1
+      },
+      /** URL of the ethereum node to connect to */
+      host: {
+        type: String,
+        value: "http://localhost:8545"
+      },
+      /** address of the first account in your wallet */
+      account: {
+        type: String,
+        notify: true
+      },
+      /** your encrypted keystore in JSON format */
+      keystore: {
+        type: Object,
+        notify: true
+      },
+      web3: {
+        type: Object,
+        notify: true
       }
-
     },
 
     // Element Lifecycle
@@ -79,23 +106,53 @@ Example:
     },
 
     // Element Behavior
-
+/**
+ * Initialize a new wallet
+*/
     initWallet: function() {
-      console.log('init new wallet');
-      var randomSeed = lightwallet.keystore.generateRandomSeed("blah");
-      this.global_keystore = new lightwallet.keystore(
-        randomSeed,
-        "testing");
-      this.global_keystore.generateNewAddress("testing", 1);
-      this.set('walletdata', this.global_keystore.serialize());
-//      this.configureWeb3();
+      var self = this;
+      if (!this.password){
+        return;
+      }
+      if (!this.keystore) {
+        var secretSeed = lightwallet.keystore.generateRandomSeed();
+        lightwallet.keystore.deriveKeyFromPassword(this.password, function(err, pwDerivedKey) {
+
+          self.keystore = new lightwallet.keystore(secretSeed, pwDerivedKey);
+          self.keystore.generateNewAddress(pwDerivedKey, self.generateaddresses);
+          self.set('walletData', self.keystore.serialize());
+
+          self._configureWeb3();
+
+        });
+      }
+
     },
 
-    loadWallet: function() {
-      this.global_keystore = new lightwallet.keystore().deserialize(this.walletdata);
-//      this.configureWeb3();
+    _loadWallet: function() {
+      this.keystore = new lightwallet.keystore.deserialize(this.walletData);
+      this._configureWeb3();
     },
 
+    _configureWeb3: function() {
+
+      this.account = this.keystore.getAddresses()[0];
+
+      var web3Provider = new HookedWeb3Provider({
+        host: this.host,
+        transaction_signer: this.keystore
+      });
+
+      var web3 = new Web3();
+      web3.setProvider(web3Provider);
+
+      this.keystore.passwordProvider = function(callback) {
+        callback(null, this.password);
+      };
+
+      this.web3 = web3;
+      this.fire('web3-ready');
+    }
 
   });
 

@@ -9,18 +9,59 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-    <title>web3-wallet Demo</title>
-    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
-    <link rel="import" href="../web3-wallet.html">
-  </head>
-  <body>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>web3-wallet</title>
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="../../paper-styles/demo-pages.html">
+  <link rel="import" href="../web3-wallet.html"></head>
+<body unresolved>
 
-    <p>An example of <code>&lt;web3-wallet&gt;</code>:</p>
+  <p>
+    An example of
+    <code>&lt;web3-wallet&gt;</code>
+  </p>
 
-    <web3-wallet></web3-wallet>
+  <template is="dom-bind" id="app">
 
-  </body>
+    <web3-wallet id="web3wallet" password="test" web3="{{web3}}" host="{{host}}" account={{account}} keystore="{{keystore}}"></web3-wallet>
+
+    <h1>Parameters</h1>
+    Ethereum node:
+    <input class="paper-font-body2" value="{{host}}">
+
+    <h1>Wallet functionalities</h1>
+    Your wallet keystore : <pre>{{prettyprint(keystore)}}</pre>
+    <h2>Adress</h2>
+    Your first account =
+    <span>{{account}}</span>
+    <h1>Web3 functionalities</h1>
+    <p>Connecting to {{host}}</p>
+    <p>
+      Check
+      <a href="https://github.com/ethereum/wiki/wiki/JavaScript-API#web3js-api-reference">
+        https://github.com/ethereum/wiki/wiki/JavaScript-API#web3js-api-reference
+      </a>
+      for the web3 API.
+    </p>
+    <li>version {{web3.version.node}}</li>
+    <li>network {{web3.version.network}}</li>
+
+  </template>
+
+  <script>
+
+    (function(document) {
+      'use strict';
+      var app = document.querySelector('#app');
+      app.host = "https://eth1.augur.net";
+      app.prettyprint = function(a){
+        return JSON.stringify(a);
+      }
+    })(document);
+
+  </script>
+
+</body>
 </html>
