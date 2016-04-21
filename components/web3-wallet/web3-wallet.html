@@ -1,0 +1,175 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-localstorage/iron-localstorage.html">
+
+<script src="../web3/dist/web3.min.js"></script>
+<script src="../hooked-web3-provider/build/hooked-web3-provider.min.js"></script>
+<script src="../eth-lightwallet/dist/lightwallet.min.js"></script>
+
+<!--
+A polymer wrapper to web3js and lightwallet libraries to build blockchain apps in polymer.
+
+Example:
+
+    <web3-wallet password="{{password}}" host="http://<yourRPCnode>:8545" account="{{account}}" web3="{{web3}}" keystore="{{keystore}}"></web3-wallet>
+@demo
+-->
+<dom-module id="web3-wallet">
+
+<template>
+  <iron-localstorage 
+      id="localstorage" 
+      name="{{walletname}}"
+      value="{{walletData}}" 
+      on-iron-localstorage-load-empty="initWallet"
+      on-iron-localstorage-load="_loadWallet"></iron-localstorage>
+</template>
+
+</dom-module>
+
+<script>
+
+  Polymer({
+
+    is: 'web3-wallet',
+
+    properties: {
+
+      /** key in localstorage under which to store your serialized wallet. */
+      walletname: {
+        type: String,
+        value: 'web3-wallet'
+      },
+      /** password to encrypt your wallet with. */
+      password: {
+        type: String
+      },
+      /** number of addresses to create when creating a new wallet. */
+      generateaddresses: {
+        type: Number,
+        value: 1
+      },
+      /** URL of the ethereum node to connect to */
+      host: {
+        type: String,
+        value: "http://localhost:8545"
+      },
+      /** address of the first account in your wallet */
+      account: {
+        type: String,
+        notify: true
+      },
+      /** balance in Wei of the first account in your wallet ( convert to Ether = balance/1e18 ) */
+      balance: {
+        type:String,
+        notify: true
+      },
+      /** your encrypted keystore in JSON format */
+      keystore: {
+        type: Object,
+        notify: true
+      },
+      web3: {
+        type: Object,
+        notify: true
+      },
+    },
+
+    // Element Lifecycle
+
+    ready: function() {
+      // `ready` is called after all elements have been configured, but
+      // propagates bottom-up. This element's children are ready, but parents
+      // are not.
+      //
+      // This is the point where you should make modifications to the DOM (when
+      // necessary), or kick off any processes the element wants to perform.
+    },
+
+    attached: function() {
+      // `attached` fires once the element and its parents have been inserted
+      // into a document.
+      //
+      // This is a good place to perform any work related to your element's
+      // visual state or active behavior (measuring sizes, beginning animations,
+      // loading resources, etc).
+    },
+
+    detached: function() {
+      // The analog to `attached`, `detached` fires when the element has been
+      // removed from a document.
+      //
+      // Use this to clean up anything you did in `attached`.
+    },
+
+    // Element Behavior
+    /**
+     * Initialize a new wallet
+    */
+    initWallet: function() {
+      var self = this;
+      if (!this.password){
+        return;
+      }
+      if (!this.keystore) {
+        var secretSeed = lightwallet.keystore.generateRandomSeed();
+        lightwallet.keystore.deriveKeyFromPassword(this.password, function(err, pwDerivedKey) {
+
+          self.keystore = new lightwallet.keystore(secretSeed, pwDerivedKey);
+          self.keystore.generateNewAddress(pwDerivedKey, self.generateaddresses);
+          self.set('walletData', self.keystore.serialize());
+
+          self._configureWeb3();
+
+        });
+      }
+
+    },
+
+    /**
+     * fetches the balance of the first account - updates the property 'balance'
+    */
+    updateBalance: function(){
+      this.balance = this.web3.eth.getBalance(this.account).toNumber();
+      return this.balance;
+    },
+
+    _loadWallet: function() {
+      this.keystore = new lightwallet.keystore.deserialize(this.walletData);
+      this._configureWeb3();
+    },
+
+    _configureWeb3: function() {
+
+      this.account = this.keystore.getAddresses()[0];
+
+      var web3Provider = new HookedWeb3Provider({
+        host: this.host,
+        transaction_signer: this.keystore
+      });
+
+      var web3 = new Web3();
+      web3.setProvider(web3Provider);
+
+      this.keystore.passwordProvider = function(callback) {
+        callback(null, this.password);
+      };
+
+      this.web3 = web3;
+
+      this.updateBalance();
+
+      this.fire('web3-ready');
+    }
+
+  });
+
+</script>

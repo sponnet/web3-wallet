@@ -1,0 +1,44 @@
+{
+  "name": "web3-wallet",
+  "authors": [
+    "Stefaan Ponnet <stefaan@ponnet.com>"
+  ],
+  "description": "An element wrapping web3js + lightwallet functionalities.",
+  "keywords": [
+    "web-component",
+    "web-components",
+    "polymer",
+    "ethereum",
+    "lightwallet",
+    "web3js"
+  ],
+  "main": "web3-wallet.html",
+  "license": "http://polymer.github.io/LICENSE.txt",
+  "homepage": "https://github.com/sponnet/web3-wallet/",
+  "ignore": [
+    "/.*",
+    "/test/",
+    "/demo/"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.0.0",
+    "web3": "^0.15.2",
+    "eth-lightwallet": "https://github.com/ConsenSys/eth-lightwallet.git#^2.2.2",
+    "hooked-web3-provider": "https://github.com/ConsenSys/hooked-web3-provider.git",
+    "iron-localstorage": "PolymerElements/iron-localstorage#^1.0.5"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "web-component-tester": "*"
+  },
+  "_release": "b8023f3b3a",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "b8023f3b3aaaa6363e381490d5a6f49740397c84"
+  },
+  "_source": "git://github.com/sponnet/web3-wallet.git",
+  "_target": "master",
+  "_originalSource": "sponnet/web3-wallet",
+  "_direct": true
+}
