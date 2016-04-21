@@ -67,6 +67,11 @@ Example:
         type: String,
         notify: true
       },
+      /** balance in Wei of the first account in your wallet ( convert to Ether = balance/1e18 ) */
+      balance: {
+        type:String,
+        notify: true
+      },
       /** your encrypted keystore in JSON format */
       keystore: {
         type: Object,
@@ -75,7 +80,7 @@ Example:
       web3: {
         type: Object,
         notify: true
-      }
+      },
     },
 
     // Element Lifecycle
@@ -106,9 +111,9 @@ Example:
     },
 
     // Element Behavior
-/**
- * Initialize a new wallet
-*/
+    /**
+     * Initialize a new wallet
+    */
     initWallet: function() {
       var self = this;
       if (!this.password){
@@ -127,6 +132,14 @@ Example:
         });
       }
 
+    },
+
+    /**
+     * fetches the balance of the first account - updates the property 'balance'
+    */
+    updateBalance: function(){
+      this.balance = this.web3.eth.getBalance(this.account).toNumber();
+      return this.balance;
     },
 
     _loadWallet: function() {
@@ -151,6 +164,9 @@ Example:
       };
 
       this.web3 = web3;
+
+      this.updateBalance();
+
       this.fire('web3-ready');
     }
 

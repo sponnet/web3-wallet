@@ -25,7 +25,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <template is="dom-bind" id="app">
 
-    <web3-wallet id="web3wallet" password="test" web3="{{web3}}" host="{{host}}" account={{account}} keystore="{{keystore}}"></web3-wallet>
+    <web3-wallet id="web3wallet" password="test" web3="{{web3}}" host="{{host}}" account={{account}} keystore="{{keystore}}" balance="{{balance}}"></web3-wallet>
 
     <h1>Parameters</h1>
     Ethereum node:
@@ -36,6 +36,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <h2>Adress</h2>
     Your first account =
     <span>{{account}}</span>
+    <p>Balance = {{balance}} Wei</p>
     <h1>Web3 functionalities</h1>
     <p>Connecting to {{host}}</p>
     <p>
