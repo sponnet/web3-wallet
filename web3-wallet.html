@@ -148,6 +148,7 @@ Example:
     },
 
     _configureWeb3: function() {
+      var self = this;
 
       this.account = this.keystore.getAddresses()[0];
 
@@ -160,7 +161,7 @@ Example:
       web3.setProvider(web3Provider);
 
       this.keystore.passwordProvider = function(callback) {
-        callback(null, this.password);
+        callback(null, self.password);
       };
 
       this.web3 = web3;
