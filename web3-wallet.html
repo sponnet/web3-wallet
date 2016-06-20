@@ -158,6 +158,8 @@ Example:
       var web3 = new Web3();
       web3.setProvider(web3Provider);
 
+      var self=this;
+
       this.keystore.passwordProvider = function(callback) {
         callback(null, self.password);
       };
