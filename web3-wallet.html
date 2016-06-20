@@ -50,7 +50,8 @@ Example:
       },
       /** password to encrypt your wallet with. */
       password: {
-        type: String
+        type: String,
+        observer: '_initwallet'
       },
       /** number of addresses to create when creating a new wallet. */
       generateaddresses: {
@@ -111,28 +112,6 @@ Example:
     },
 
     // Element Behavior
-    /**
-     * Initialize a new wallet
-    */
-    initWallet: function() {
-      var self = this;
-      if (!this.password){
-        return;
-      }
-      if (!this.keystore) {
-        var secretSeed = lightwallet.keystore.generateRandomSeed();
-        lightwallet.keystore.deriveKeyFromPassword(this.password, function(err, pwDerivedKey) {
-
-          self.keystore = new lightwallet.keystore(secretSeed, pwDerivedKey);
-          self.keystore.generateNewAddress(pwDerivedKey, self.generateaddresses);
-          self.set('walletData', self.keystore.serialize());
-
-          self._configureWeb3();
-
-        });
-      }
-
-    },
 
     /**
      * fetches the balance of the first account - updates the property 'balance'
@@ -144,12 +123,36 @@ Example:
 
     _loadWallet: function() {
       this.keystore = new lightwallet.keystore.deserialize(this.walletData);
-      this._configureWeb3();
+      this._initwallet();
     },
 
-    _configureWeb3: function() {
+    /**
+     * Initialize the wallet
+    */
+    _initwallet: function() {
+      if (!this.password){
+        return;
+      }
+
       var self = this;
 
+      if (!this.keystore) {
+        var secretSeed = lightwallet.keystore.generateRandomSeed();
+        lightwallet.keystore.deriveKeyFromPassword(this.password, function(err, pwDerivedKey) {
+
+          self.keystore = new lightwallet.keystore(secretSeed, pwDerivedKey);
+          self.keystore.generateNewAddress(pwDerivedKey, self.generateaddresses);
+          self.set('walletData', self.keystore.serialize());
+
+          self._initweb3();
+
+        });
+      }else{
+        this._initweb3();
+      }
+    },
+
+    _initweb3: function(){
       this.account = this.keystore.getAddresses()[0];
 
       var web3Provider = new HookedWeb3Provider({

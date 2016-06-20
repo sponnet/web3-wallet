@@ -25,11 +25,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <template is="dom-bind" id="app">
 
-    <web3-wallet id="web3wallet" password="test" web3="{{web3}}" host="{{host}}" account={{account}} keystore="{{keystore}}" balance="{{balance}}"></web3-wallet>
+    <web3-wallet id="web3wallet" web3="{{web3}}" host="{{host}}" account={{account}} keystore="{{keystore}}" balance="{{balance}}" password="{{password}}" walletname="{{walletname}}"></web3-wallet>
 
     <h1>Parameters</h1>
-    Ethereum node:
-    <input class="paper-font-body2" value="{{host}}">
+    <p>Ethereum node: <input class="paper-font-body2" value="{{host}}"></p>
+    <p>wallet encryption password <input class="paper-font-body2" value="{{password}}" on-change="setpassword"></p>
 
     <h1>Wallet functionalities</h1>
     Your wallet keystore : <pre>{{prettyprint(keystore)}}</pre>
@@ -37,6 +37,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     Your first account =
     <span>{{account}}</span>
     <p>Balance = {{balance}} Wei</p>
+    <p>Stored in localstorage under = '{{walletname}}'</p>
     <h1>Web3 functionalities</h1>
     <p>Connecting to {{host}}</p>
     <p>
@@ -44,7 +45,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <a href="https://github.com/ethereum/wiki/wiki/JavaScript-API#web3js-api-reference">
         https://github.com/ethereum/wiki/wiki/JavaScript-API#web3js-api-reference
       </a>
-      for the web3 API.
+      for a full description of the WEB3 API.
     </p>
     <li>version {{web3.version.node}}</li>
     <li>network {{web3.version.network}}</li>
@@ -56,9 +57,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     (function(document) {
       'use strict';
       var app = document.querySelector('#app');
-      app.host = "https://eth1.augur.net";
+      app.host = "http://faucet.ma.cx:8545";
+      app.password = Math.floor(Math.random()*1000000 + 100000 ).toString();
+      app.walletname = 'web3-wallet';
       app.prettyprint = function(a){
         return JSON.stringify(a);
+      }
+      app.setpassword = function(e){
+        debugger;
+        app.password = Math.floor(Math.random()*1000000 + 100000 ).toString();
       }
     })(document);
 
