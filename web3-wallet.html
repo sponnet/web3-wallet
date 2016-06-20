@@ -29,7 +29,7 @@ Example:
       id="localstorage" 
       name="{{walletname}}"
       value="{{walletData}}" 
-      on-iron-localstorage-load-empty="initWallet"
+      on-iron-localstorage-load-empty="_createWallet"
       on-iron-localstorage-load="_loadWallet"></iron-localstorage>
 </template>
 
@@ -126,30 +126,25 @@ Example:
       this._initwallet();
     },
 
-    /**
-     * Initialize the wallet
-    */
+    _createWallet: function() {
+      var self = this;
+      var secretSeed = lightwallet.keystore.generateRandomSeed();
+      lightwallet.keystore.deriveKeyFromPassword(this.password, function(err, pwDerivedKey) {
+
+        self.keystore = new lightwallet.keystore(secretSeed, pwDerivedKey);
+        self.keystore.generateNewAddress(pwDerivedKey, self.generateaddresses);
+        self.set('walletData', self.keystore.serialize());
+
+        self._initwallet();
+
+      });
+    },
+
     _initwallet: function() {
-      if (!this.password){
+      if (!this.password || !this.keystore){
         return;
       }
-
-      var self = this;
-
-      if (!this.keystore) {
-        var secretSeed = lightwallet.keystore.generateRandomSeed();
-        lightwallet.keystore.deriveKeyFromPassword(this.password, function(err, pwDerivedKey) {
-
-          self.keystore = new lightwallet.keystore(secretSeed, pwDerivedKey);
-          self.keystore.generateNewAddress(pwDerivedKey, self.generateaddresses);
-          self.set('walletData', self.keystore.serialize());
-
-          self._initweb3();
-
-        });
-      }else{
-        this._initweb3();
-      }
+      this._initweb3();
     },
 
     _initweb3: function(){
