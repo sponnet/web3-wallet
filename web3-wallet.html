@@ -123,31 +123,37 @@ Example:
 
     _loadWallet: function() {
       this.keystore = new lightwallet.keystore.deserialize(this.walletData);
+      this.createwallet = false;
       this._initwallet();
     },
 
     _createWallet: function() {
-      if (!this.password){
-        return;
-      }      
-      var self = this;
-      var secretSeed = lightwallet.keystore.generateRandomSeed();
-      lightwallet.keystore.deriveKeyFromPassword(this.password, function(err, pwDerivedKey) {
-
-        self.keystore = new lightwallet.keystore(secretSeed, pwDerivedKey);
-        self.keystore.generateNewAddress(pwDerivedKey, self.generateaddresses);
-        self.set('walletData', self.keystore.serialize());
-
-        self._initwallet();
-
-      });
+      this.createwallet = true;
+      this._initwallet();
     },
 
     _initwallet: function() {
-      if (!this.password || !this.keystore){
+      if (!this.password){
         return;
       }
-      this._initweb3();
+      if (this.createwallet){
+        var self = this;
+        var secretSeed = lightwallet.keystore.generateRandomSeed();
+        lightwallet.keystore.deriveKeyFromPassword(this.password, function(err, pwDerivedKey) {
+
+          self.keystore = new lightwallet.keystore(secretSeed, pwDerivedKey);
+          self.keystore.generateNewAddress(pwDerivedKey, self.generateaddresses);
+          self.set('walletData', self.keystore.serialize());
+
+          self._initweb3();
+
+        });
+      }else{
+        this._initweb3();
+      }
+
+
+      
     },
 
     _initweb3: function(){
