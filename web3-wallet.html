@@ -127,6 +127,9 @@ Example:
     },
 
     _createWallet: function() {
+      if (!this.password){
+        return;
+      }      
       var self = this;
       var secretSeed = lightwallet.keystore.generateRandomSeed();
       lightwallet.keystore.deriveKeyFromPassword(this.password, function(err, pwDerivedKey) {
