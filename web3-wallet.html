@@ -149,7 +149,9 @@ Example:
 
         });
       }else{
-        this._initweb3();
+        if (this.keystore){
+          this._initweb3();
+        }
       }
 
 
